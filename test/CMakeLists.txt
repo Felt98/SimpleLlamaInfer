@@ -18,7 +18,7 @@ target_link_libraries(test_llm ${link_ext_lib})
 target_include_directories(test_llm PUBLIC ${glog_INCLUDE_DIR})
 target_include_directories(test_llm PUBLIC ${GTest_INCLUDE_DIR})
 
-target_include_directories(test_llm PUBLIC ../kuiper/include)
+target_include_directories(test_llm PUBLIC ../infer/include)
 target_link_directories(test_llm PUBLIC ${PROJECT_SOURCE_DIR}/lib)
 if (LLAMA3_SUPPORT OR QWEN2_SUPPORT OR QWEN3_SUPPORT)
     message(STATUS "LINK LLAMA3 SUPPORT")

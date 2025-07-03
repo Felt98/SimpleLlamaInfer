@@ -5,3 +5,7 @@
 /.cache
 .*
 !.git/
+!.gitignore
+
+/*.md
+!README.md
