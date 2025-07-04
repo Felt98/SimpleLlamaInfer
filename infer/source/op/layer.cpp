@@ -1,47 +1,40 @@
+#include <string>
+#include <vector>
+#include <memory>
+#include <numeric>
+#include <cstdarg>
+#include <glog/logging.h>
 #include "op/layer.h"
 #include <base/cuda_config.h>
-#include <glog/logging.h>
-#include <cstdarg>
-#include <numeric>
-#include <utility>
 
 namespace op {
-BaseLayer::BaseLayer(base::DeviceType device_type, LayerType layer_type, base::DataType data_type,
-                     std::string layer_name)
-    : device_type_(device_type),
+// Layer实现，包含原BaseLayer的所有实现
+Layer::Layer(base::DeviceType device_type, LayerType layer_type,  std::string layer_name,base::DataType data_type)
+    : layer_name_(std::move(layer_name)),
       layer_type_(layer_type),
       data_type_(data_type),
-      layer_name_(std::move(layer_name)) {}
+      device_type_(device_type) {}
 
-base::DataType BaseLayer::data_type() const { return data_type_; }
+base::DataType Layer::data_type() const { return data_type_; }
+LayerType Layer::layer_type() const { return layer_type_; }
 
-LayerType BaseLayer::layer_type() const { return layer_type_; }
-
-base::Status BaseLayer::set_weight(int32_t idx, const tensor::Tensor& weight) {
+base::Status Layer::set_weight(int32_t idx, const tensor::Tensor& weight) {
   return base::error::FunctionNotImplement();
 }
 
-base::Status BaseLayer::set_weight(int32_t idx, const std::vector<int32_t>& dims,
-                                   const void* weight_ptr, base::DeviceType device_type) {
+base::Status Layer::set_weight(int32_t idx, const std::vector<int32_t>& dims, const void* weight_ptr, base::DeviceType device_type) {
   return base::error::FunctionNotImplement();
 }
 
-const std::string& BaseLayer::get_layer_name() const { return layer_name_; }
-
-void BaseLayer::set_layer_name(const std::string& layer_name) { layer_name_ = layer_name; }
-base::DeviceType BaseLayer::device_type() const { return device_type_; }
-
-void BaseLayer::set_device_type(base::DeviceType device_type) { device_type_ = device_type; }
-
-Layer::Layer(base::DeviceType device_type, LayerType layer_type, std::string layer_name)
-    : BaseLayer(device_type, layer_type, base::DataType::kDataTypeFp32, std::move(layer_name)) {}
+const std::string& Layer::get_layer_name() const { return layer_name_; }
+void Layer::set_layer_name(const std::string& layer_name) { layer_name_ = layer_name; }
+base::DeviceType Layer::device_type() const { return device_type_; }
+void Layer::set_device_type(base::DeviceType device_type) { device_type_ = device_type; }
 
 base::Status Layer::init() { return base::error::Success(); }
-
 base::Status Layer::forward() { return base::error::FunctionNotImplement(""); }
 
-base::Status Layer::check_tensor(const tensor::Tensor& tensor, base::DeviceType device_type,
-                                 base::DataType data_type) const {
+base::Status Layer::check_tensor(const tensor::Tensor& tensor, base::DeviceType device_type, base::DataType data_type) const {
   if (tensor.is_empty()) {
     return base::error::InvalidArgument("The tensor parameter is empty.");
   }
@@ -54,9 +47,7 @@ base::Status Layer::check_tensor(const tensor::Tensor& tensor, base::DeviceType 
   return base::error::Success();
 }
 
-base::Status Layer::check_tensor_with_dim(const tensor::Tensor& tensor,
-                                          base::DeviceType device_type, base::DataType data_type,
-                                          ...) const {
+base::Status Layer::check_tensor_with_dim(const tensor::Tensor& tensor, base::DeviceType device_type, base::DataType data_type, ...) const {
   std::va_list args;
   if (tensor.is_empty()) {
     return base::error::InvalidArgument("The tensor parameter is empty.");
@@ -67,8 +58,6 @@ base::Status Layer::check_tensor_with_dim(const tensor::Tensor& tensor,
   if (tensor.data_type() != data_type) {
     return base::error::InvalidArgument("The tensor has a wrong data type.");
   }
-
-  // ...使用可变参数列表检查维度,...是期望的维度
   va_start(args, data_type);
   int32_t dims = tensor.dims_size();
   for (int32_t i = 0; i < dims; ++i) {
@@ -82,49 +71,37 @@ base::Status Layer::check_tensor_with_dim(const tensor::Tensor& tensor,
 }
 
 void Layer::set_input(int32_t idx, const tensor::Tensor& input) {
-  CHECK_GE(idx, 0);             // 检查索引是否大于等于0
-  CHECK_LT(idx, inputs_.size());  // 检查索引是否小于输入张量的数量
-  this->inputs_.at(idx) = input;  // 将输入张量赋值给inputs_的第idx个元素
+  CHECK_GE(idx, 0);
+  CHECK_LT(idx, inputs_.size());
+  this->inputs_.at(idx) = input;
 }
-
 void Layer::set_output(int32_t idx, const tensor::Tensor& output) {
   CHECK_GE(idx, 0);
   CHECK_LT(idx, outputs_.size());
   this->outputs_.at(idx) = output;
 }
-
 const tensor::Tensor& Layer::get_input(int32_t idx) const {
   CHECK_GE(idx, 0);
   CHECK_LT(idx, inputs_.size());
   return inputs_.at(idx);
 }
-
 tensor::Tensor& Layer::get_input(int32_t idx) {
   CHECK_GE(idx, 0);
   CHECK_LT(idx, inputs_.size());
   return inputs_.at(idx);
 }
-
 tensor::Tensor& Layer::get_output(int32_t idx) {
   CHECK_GE(idx, 0);
   CHECK_LT(idx, outputs_.size());
   return outputs_.at(idx);
 }
-
-base::Status Layer::check() const {
-  return base::error::FunctionNotImplement("The check function is not implement yet");
-}
-
 const tensor::Tensor& Layer::get_output(int32_t idx) const {
   CHECK_GE(idx, 0);
   CHECK_LT(idx, outputs_.size());
   return outputs_.at(idx);
 }
-
 void Layer::reset_input_size(size_t size) { inputs_.resize(size); }
-
 void Layer::reset_output_size(size_t size) { outputs_.resize(size); }
-
 void Layer::to_cuda() {
   for (auto& input : inputs_) {
     if (!input.is_empty()) {
@@ -137,23 +114,19 @@ void Layer::to_cuda() {
     }
   }
 }
-
 void Layer::set_cuda_config(std::shared_ptr<kernel::CudaConfig> config) {
   if (!config) {
     return;
   }
   this->cuda_config_ = config;
 }
-
 std::shared_ptr<kernel::CudaConfig> Layer::cuda_config() const { return cuda_config_; }
-
 size_t Layer::input_size() const { return inputs_.size(); }
-
 size_t Layer::output_size() const { return outputs_.size(); }
+base::Status Layer::check() const { return base::error::FunctionNotImplement("The check function is not implement yet"); }
 
-LayerParam::LayerParam(base::DeviceType device_type, LayerType layer_type, bool is_quant_layer,
-                       std::string layer_name)
-    : Layer(device_type, layer_type, std::move(layer_name)), is_quant_layer_(is_quant_layer) {}
+LayerParam::LayerParam(base::DeviceType device_type, LayerType layer_type, bool is_quant_layer, std::string layer_name,base::DataType data_type)
+    : Layer(device_type, layer_type, std::move(layer_name),data_type), is_quant_layer_(is_quant_layer) {}
 
 // 设置权重
 // idx: 权重索引
@@ -257,6 +230,15 @@ void LayerParam::reset_weight_size(size_t size) { weights_.resize(size); }
 
 size_t LayerParam::weight_size() const { return weights_.size(); }
 
+base::Status Layer::forward(const std::vector<tensor::Tensor>& inputs, const std::vector<tensor::Tensor>& outputs) {
+  for (int32_t i = 0; i < inputs.size(); ++i) {
+    this->set_input(i, inputs[i]);
+  }
+  for (int32_t i = 0; i < outputs.size(); ++i) {
+    this->set_output(i, outputs[i]);
+  }
+  return this->forward();
+}
 // 设置输入和输出，然后调用无参数的 forward()
 base::Status Layer::forward(const tensor::Tensor& input1, const tensor::Tensor& output1) {
   this->set_input(0, input1);
