@@ -51,7 +51,7 @@ base::Status Model::read_model_file() {
                                " may be the path does not exist!");
   }
 
-  // 读取模型配置
+  // 读取模型配置，这里使用fread读取，而不是mmap，因为fread读取的是文件的原始数据，而mmap读取的是文件的映射数据
   FILE* file = fopen(model_path_.data(), "rb");
   if (!file) {
     return error::PathNotValid("Failed to open the file. The path may be invalid.");
@@ -108,7 +108,7 @@ base::Status Model::read_model_file() {
   // 设置权重数据
   if (!is_quant_model_) {
     raw_model_data_->weight_data =
-        static_cast<int8_t*>(raw_model_data_->data) + sizeof(ModelConfig);
+        static_cast<int8_t*>(raw_model_data_->data) + sizeof(ModelConfig);  // 偏移sizeof(ModelConfig)字节
   } else {
     raw_model_data_->weight_data =
         static_cast<int8_t*>(raw_model_data_->data) + sizeof(ModelConfig) + sizeof(group_size_);

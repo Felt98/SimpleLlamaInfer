@@ -20,6 +20,8 @@ target_include_directories(test_llm PUBLIC ${GTest_INCLUDE_DIR})
 
 target_include_directories(test_llm PUBLIC ../infer/include)
 target_link_directories(test_llm PUBLIC ${PROJECT_SOURCE_DIR}/lib)
+
+
 if (LLAMA3_SUPPORT OR QWEN2_SUPPORT OR QWEN3_SUPPORT)
     message(STATUS "LINK LLAMA3 SUPPORT")
     find_package(absl REQUIRED)
@@ -27,6 +29,13 @@ if (LLAMA3_SUPPORT OR QWEN2_SUPPORT OR QWEN3_SUPPORT)
     find_package(nlohmann_json REQUIRED)
     target_link_libraries(llama absl::base re2::re2 nlohmann_json::nlohmann_json)
 endif ()
+# 修正：这里应该是 test_llm 而不是 llama
+# if (LLAMA3_SUPPORT OR QWEN2_SUPPORT OR QWEN3_SUPPORT)
+#     message(STATUS "LINK LLAMA3 SUPPORT")
+#     # 不需要重复 find_package，直接链接即可
+# endif ()
+# ========================
+
 target_link_libraries(test_llm llama)
 
 set_target_properties(test_llm PROPERTIES WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})

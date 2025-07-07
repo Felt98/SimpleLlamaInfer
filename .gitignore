@@ -1,8 +1,8 @@
 /build
 /tmp
-/.vscode
-/.notes
-/.cache
+/llama3
+/llama2
+
 .*
 !.git/
 !.gitignore

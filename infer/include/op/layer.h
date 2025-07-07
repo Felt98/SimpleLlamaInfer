@@ -41,17 +41,21 @@ class Layer {
   virtual base::Status forward(const tensor::Tensor& input1, const tensor::Tensor& input2, const tensor::Tensor& input3, const tensor::Tensor& input4, const tensor::Tensor& output1);
   virtual base::Status forward(const tensor::Tensor& input1, const tensor::Tensor& input2, const tensor::Tensor& input3, const tensor::Tensor& input4, const tensor::Tensor& input5, const tensor::Tensor& output1);
 
+  // 设置输入和输出张量
   virtual void set_input(int32_t idx, const tensor::Tensor& input);
   virtual void set_output(int32_t idx, const tensor::Tensor& output);
   virtual size_t input_size() const;
   virtual size_t output_size() const;
+
   virtual base::Status check() const;
   virtual tensor::Tensor& get_input(int32_t idx);
   virtual tensor::Tensor& get_output(int32_t idx);
   virtual const tensor::Tensor& get_input(int32_t idx) const ;
   virtual const tensor::Tensor& get_output(int32_t idx) const ;
-  virtual base::Status set_weight(int32_t idx, const tensor::Tensor& weight);
-  virtual base::Status set_weight(int32_t idx, const std::vector<int32_t>& dims, const void* weight_ptr, base::DeviceType device_type = base::DeviceType::kDeviceUnknown);
+
+  // 设置权重
+  // virtual base::Status set_weight(int32_t idx, const tensor::Tensor& weight);
+  // virtual base::Status set_weight(int32_t idx, const std::vector<int32_t>& dims, const void* weight_ptr, base::DeviceType device_type = base::DeviceType::kDeviceUnknown);
 
   const std::string& get_layer_name() const;
   void set_layer_name(const std::string& layer_name);
@@ -88,10 +92,16 @@ class LayerParam : public Layer {
   tensor::Tensor& get_weight(int32_t idx);
   const tensor::Tensor& get_weight(int32_t idx) const;
   void to_cuda() override;
-  base::Status set_weight(int32_t idx, const tensor::Tensor& weight) override;
-  base::Status set_weight(int32_t idx, const std::vector<int32_t>& dims, const void* weight_ptr, base::DeviceType device_type = base::DeviceType::kDeviceUnknown) override;
+
+  // 设置权重
+  base::Status set_weight(int32_t idx, const tensor::Tensor& weight) ;
+  base::Status set_weight(int32_t idx, const std::vector<int32_t>& dims, const void* weight_ptr, base::DeviceType device_type = base::DeviceType::kDeviceUnknown);
+  
+  // 设置缩放因子
   void set_scales(const tensor::Tensor& scales);
+  // 设置量化组大小
   void set_group_size(int32_t group_size);
+  // 获取缩放因子数量
   int32_t get_scale_num() const;
  protected:
   int32_t group_size_ = 0;  // 量化组大小

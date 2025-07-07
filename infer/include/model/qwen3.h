@@ -29,18 +29,18 @@ struct Qwen3Layers {
   std::shared_ptr<op::Layer> swiglu_layer_;
   std::shared_ptr<op::Layer> mha_layer_;
 
-  std::vector<std::shared_ptr<op::Layer>> wq_layers_;
-  std::vector<std::shared_ptr<op::Layer>> wk_layers_;
-  std::vector<std::shared_ptr<op::Layer>> wv_layers_;
-  std::vector<std::shared_ptr<op::Layer>> wo_layers_;
+  std::vector<std::shared_ptr<op::LayerParam>> wq_layers_;
+  std::vector<std::shared_ptr<op::LayerParam>> wk_layers_;
+  std::vector<std::shared_ptr<op::LayerParam>> wv_layers_;
+  std::vector<std::shared_ptr<op::LayerParam>> wo_layers_;
 
-  std::vector<std::shared_ptr<op::Layer>> w1_layers_;
-  std::vector<std::shared_ptr<op::Layer>> w2_layers_;
-  std::vector<std::shared_ptr<op::Layer>> rmsnorm_layers_;
-  std::vector<std::shared_ptr<op::Layer>> w3_layers_;
-  std::shared_ptr<op::Layer> cls_layer_;
+  std::vector<std::shared_ptr<op::LayerParam>> w1_layers_;
+  std::vector<std::shared_ptr<op::LayerParam>> w2_layers_;
+  std::vector<std::shared_ptr<op::LayerParam>> rmsnorm_layers_;
+  std::vector<std::shared_ptr<op::LayerParam>> w3_layers_;
+  std::shared_ptr<op::LayerParam> cls_layer_;
 
-  std::shared_ptr<op::Layer> embedding_layer_;
+  std::shared_ptr<op::LayerParam> embedding_layer_;
 
   void to_cuda(std::shared_ptr<kernel::CudaConfig> config);
 };

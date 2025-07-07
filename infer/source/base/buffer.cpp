@@ -122,8 +122,9 @@ DeviceType Buffer::device_type() const {
 void Buffer::set_device_type(DeviceType device_type) {
   device_type_ = device_type;
 }
-
+// 获取共享指针
 std::shared_ptr<Buffer> Buffer::get_shared_from_this() {
+  // 返回一个指向当前对象的 std::shared_ptr<Buffer>
   return shared_from_this();
 }
 

@@ -10,6 +10,13 @@ if (LLAMA3_SUPPORT)
     target_link_libraries(llama_infer absl::base re2::re2 nlohmann_json::nlohmann_json)
 endif ()
 set_target_properties(llama_infer PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
+# 移除重复的 find_package，因为主 CMakeLists.txt 已经处理了
+# if (LLAMA3_SUPPORT)
+#     message(STATUS "LINK LLAMA3 SUPPORT")
+#     # 不需要额外链接，因为 llama 库已经包含了这些依赖
+# endif ()
+# set_target_properties(llama_infer PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
+# ========================
 
 if (QWEN2_SUPPORT)
     message(STATUS "LINK QWEN2 SUPPORT")

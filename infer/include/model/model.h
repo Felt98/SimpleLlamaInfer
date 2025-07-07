@@ -118,7 +118,7 @@ class Model {
   std::string token_path_;  // 词表路径（构建encoder时，需要词表路径）
   std::string model_path_;  // 模型路径
   std::unique_ptr<op::EncodeLayerBase> encode_layer_;  // 编码层
-  std::map<ModelBufferType, tensor::Tensor> buffers_;  // Tensor缓冲区哈希表，存取buffer_idx和tensor
+  std::map<ModelBufferType, tensor::Tensor> buffers_;  // 数据Tensor缓冲区哈希表，存取buffer_idx和tensor，包括各层输出、kv cache等
   std::unique_ptr<sampler::Sampler> sampler_;  // 采样器
   std::shared_ptr<RawModelData> raw_model_data_;  // 原始模型数据
   base::DeviceType device_type_ = base::DeviceType::kDeviceUnknown;  // 设备类型

@@ -16,30 +16,30 @@ struct LLama2Layers {
   std::shared_ptr<op::Layer> mha_layer_;
 
   // 2. 多头注意力层（带权重）：Wq、Wk、Wv、Wo
-  std::vector<std::shared_ptr<op::Layer>> wq_layers_; // 查询权重矩阵
-  std::vector<std::shared_ptr<op::Layer>> wk_layers_; // 键权重矩阵
-  std::vector<std::shared_ptr<op::Layer>> wv_layers_; // 值权重矩阵
-  std::vector<std::shared_ptr<op::Layer>> wo_layers_; // 输出权重矩阵
+  std::vector<std::shared_ptr<op::LayerParam>> wq_layers_; // 查询权重矩阵
+  std::vector<std::shared_ptr<op::LayerParam>> wk_layers_; // 键权重矩阵
+  std::vector<std::shared_ptr<op::LayerParam>> wv_layers_; // 值权重矩阵
+  std::vector<std::shared_ptr<op::LayerParam>> wo_layers_; // 输出权重矩阵
 
   // 3. 前馈神经网络层（带权重）：W1、W2、RMSNorm、W3
-  std::vector<std::shared_ptr<op::Layer>> w1_layers_; // 前馈神经网络层1，一个层可能有多个权重
-  std::vector<std::shared_ptr<op::Layer>> w2_layers_; // 前馈神经网络层2
-  std::vector<std::shared_ptr<op::Layer>> rmsnorm_layers_; // rmsnorm层
-  std::vector<std::shared_ptr<op::Layer>> w3_layers_; // 前馈神经网络层3
+  std::vector<std::shared_ptr<op::LayerParam>> w1_layers_; // 前馈神经网络层1，一个层可能有多个权重
+  std::vector<std::shared_ptr<op::LayerParam>> w2_layers_; // 前馈神经网络层2
+  std::vector<std::shared_ptr<op::LayerParam>> rmsnorm_layers_; // rmsnorm层
+  std::vector<std::shared_ptr<op::LayerParam>> w3_layers_; // 前馈神经网络层3
 
-  // 4. 分类层（带权重）：全连接层
-  std::shared_ptr<op::Layer> cls_layer_;
+  // 4. 分类层（带权重）：最后的Linear全连接层
+  std::shared_ptr<op::LayerParam> cls_layer_;
 
   // 5. 嵌入层（带权重）：词嵌入层
-  std::shared_ptr<op::Layer> embedding_layer_;
+  std::shared_ptr<op::LayerParam> embedding_layer_;
 
   void to_cuda(std::shared_ptr<kernel::CudaConfig> config);
 };
 
-class LLama2Model : public Model {
+class LLama3Model : public Model {
  public:
   // 1. 构造函数：初始化模型类型、词表路径、模型路径、是否量化
-  explicit LLama2Model(base::TokenizerType tokenizer_type, std::string token_path,
+  explicit LLama3Model(base::TokenizerType tokenizer_type, std::string token_path,
                        std::string model_path, bool is_quant_model);
 
   // 2. 初始化：设置设备类型、初始化内存、创建层、创建参数层、创建非参数层、创建量化层
@@ -84,10 +84,10 @@ class LLama2Model : public Model {
   // 14. 注意力：qkv注意力
   void attention_qkv(int32_t layer_idx, const tensor::Tensor& pos_tensor) const;
 
-  // 15. 分类：分类
+  // 15. 分类：分类（RMSNorm + Linear）
   void cls_logits(const tensor::Tensor& input) const;
 
-  // 16. 后处理：后处理
+  // 16. 后处理：后处理（softmax采样）
   int32_t post_processing(const tensor::Tensor& pos, bool is_prompt) const override;
 
  private:

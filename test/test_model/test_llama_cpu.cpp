@@ -11,7 +11,7 @@
 //
 //   const char* checkpoint_path = "/home/fss/llama2/llama2_7b.bin";  // e.g. out/model.bin
 //   const char* tokenizer_path = "/home/fss/llama2/tokenizer.model";
-//   model::LLama2Model model(tokenizer_path, checkpoint_path);
+//   model::LLama3Model model(tokenizer_path, checkpoint_path);
 //   auto status = model.init(base::DeviceType::kDeviceCPU);
 //   if (status) {
 //     std::string sentence = "Hi";  // prompts

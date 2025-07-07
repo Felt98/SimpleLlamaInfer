@@ -2,7 +2,7 @@
 #include <base/tick.h>
 #include <glog/logging.h>
 #include "model/llama3.h"
-int32_t generate(const model::LLama2Model& model, const std::string& sentence, int total_steps,
+int32_t generate(const model::LLama3Model& model, const std::string& sentence, int total_steps,
                  bool need_output = false) {
   // 编码句子，tokens是句子编码后的id列表vector<int32_t>
   auto tokens = model.encode(sentence);
@@ -80,8 +80,11 @@ int main(int argc, char* argv[]) {
   const char* checkpoint_path = argv[1];  // e.g. out/model.bin
   const char* tokenizer_path = argv[2];
 
-  model::LLama2Model model(base::TokenizerType::kEncodeBpe, tokenizer_path,
-    checkpoint_path, false);  // true为使用量化模型，false为使用fp16模型
+  // model::LLama3Model model(base::TokenizerType::kEncodeBpe, tokenizer_path,
+  //   checkpoint_path, false);  // true为使用量化模型，false为使用fp16模型,llama3.1使用bpe分词
+  model::LLama3Model model(base::TokenizerType::kEncodeSpe, tokenizer_path,
+    checkpoint_path, false);  // true为使用量化模型，false为使用fp16模型，llama2使用spe分词
+
   auto init_status = model.init(base::DeviceType::kDeviceCUDA);
   if (!init_status) {
     LOG(FATAL) << "The model init failed, the error code is: " << init_status.get_err_code();

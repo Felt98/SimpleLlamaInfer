@@ -45,7 +45,8 @@ class Buffer : public NoCopyable, std::enable_shared_from_this<Buffer> {
   // 设置设备类型
   void set_device_type(DeviceType device_type);
 
-  // 获取共享指针
+  // 获取返回一个指向当前对象的共享指针
+  // 调用enable_shared_from_this的shared_from_this()方法
   std::shared_ptr<Buffer> get_shared_from_this();
 
   // 是否是外部内存

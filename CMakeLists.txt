@@ -18,6 +18,7 @@ if (LLAMA3_SUPPORT)
   message(STATUS "LLAMA3 SUPPORT")
   add_definitions(-DLLAMA3_SUPPORT)
 endif()
+
 option(QWEN2_SUPPORT OFF)
 if (QWEN2_SUPPORT)
   message(STATUS "QWEN2 SUPPORT")
@@ -88,6 +89,14 @@ find_package(GTest REQUIRED)
 find_package(glog REQUIRED)
 find_package(Armadillo REQUIRED)
 
+# ======添加这些行======
+if (LLAMA3_SUPPORT OR QWEN2_SUPPORT OR QWEN3_SUPPORT)
+    find_package(absl REQUIRED)
+    find_package(re2 REQUIRED)
+    find_package(nlohmann_json REQUIRED)
+endif()
+# ========================
+
 aux_source_directory(infer/source/tensor/ DIR_TENSOR)
 aux_source_directory(infer/source/base/ DIR_BASE)
 aux_source_directory(infer/source/op/ DIR_OP)
@@ -101,6 +110,17 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/lib)
 
 add_library(llama SHARED ${DIR_TENSOR} ${DIR_BASE} ${DIR_OP} ${DIR_KERNEL} ${DIR_MODEL} ${DIR_KERNEL_CPU} ${DIR_KERNEL_CUDA} ${DIR_KERNEL} ${DIR_SAMPLE})
 target_link_libraries(llama sentencepiece glog::glog gtest gtest_main pthread cudart armadillo)
+# ========================
+# if (LLAMA3_SUPPORT OR QWEN2_SUPPORT OR QWEN3_SUPPORT)
+#     target_link_libraries(llama sentencepiece glog::glog gtest gtest_main pthread cudart armadillo 
+#                          absl::strings absl::base absl::str_format absl::synchronization 
+#                          absl::cord absl::hash absl::flat_hash_map absl::flat_hash_set
+#                          re2::re2 nlohmann_json::nlohmann_json)
+# else()
+#     target_link_libraries(llama sentencepiece glog::glog gtest gtest_main pthread cudart armadillo)
+# endif()
+# ========================
+
 target_link_directories(llama PUBLIC ${CMAKE_CUDA_COMPILER_LIBRARY_ROOT}/lib64)
 
 target_include_directories(llama PUBLIC ${glog_INCLUDE_DIR})

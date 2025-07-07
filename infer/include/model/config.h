@@ -2,13 +2,13 @@
 #define INCLUDE_MODEL_LLAMA_CONFIG_H_
 namespace model {
 struct ModelConfig {
-  int32_t dim = 0;
-  int32_t hidden_dim = 0;
-  int32_t layer_num = 0;
-  int32_t head_num = 0;
-  int32_t kv_head_num = 0;
-  int32_t vocab_size = 0;
-  int32_t seq_len = 0;
+  int32_t dim = 0;  // 模型维度
+  int32_t hidden_dim = 0;  // 隐藏维度
+  int32_t layer_num = 0;  // 层数
+  int32_t head_num = 0;  // 头数
+  int32_t kv_head_num = 0;  // KV头数
+  int32_t vocab_size = 0;  // 词表大小
+  int32_t seq_len = 0;  // 序列长度
 #ifdef QWEN3_SUPPORT
   int32_t immediate_dim_ = 0;
 #endif

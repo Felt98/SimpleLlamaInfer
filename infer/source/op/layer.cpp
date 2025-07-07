@@ -18,13 +18,13 @@ Layer::Layer(base::DeviceType device_type, LayerType layer_type,  std::string la
 base::DataType Layer::data_type() const { return data_type_; }
 LayerType Layer::layer_type() const { return layer_type_; }
 
-base::Status Layer::set_weight(int32_t idx, const tensor::Tensor& weight) {
-  return base::error::FunctionNotImplement();
-}
+// base::Status Layer::set_weight(int32_t idx, const tensor::Tensor& weight) {
+//   return base::error::FunctionNotImplement();
+// }
 
-base::Status Layer::set_weight(int32_t idx, const std::vector<int32_t>& dims, const void* weight_ptr, base::DeviceType device_type) {
-  return base::error::FunctionNotImplement();
-}
+// base::Status Layer::set_weight(int32_t idx, const std::vector<int32_t>& dims, const void* weight_ptr, base::DeviceType device_type) {
+//   return base::error::FunctionNotImplement();
+// }
 
 const std::string& Layer::get_layer_name() const { return layer_name_; }
 void Layer::set_layer_name(const std::string& layer_name) { layer_name_ = layer_name; }

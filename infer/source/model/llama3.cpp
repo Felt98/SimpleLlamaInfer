@@ -99,12 +99,12 @@ void LLama2Layers::to_cuda(std::shared_ptr<kernel::CudaConfig> config) {
   }
 }
 
-LLama2Model::LLama2Model(base::TokenizerType tokenizer_type, std::string token_path,
+LLama3Model::LLama3Model(base::TokenizerType tokenizer_type, std::string token_path,
                          std::string model_path, bool is_quant_model)
     : Model(tokenizer_type, base::ModelType::kModelTypeLLama2, std::move(token_path),
             std::move(model_path), is_quant_model) {}
 
-base::Status LLama2Model::init(base::DeviceType device_type) {
+base::Status LLama3Model::init(base::DeviceType device_type) {
   using namespace base;
   if (token_path_.empty()) {
     return error::PathNotValid(token_path_);
@@ -130,7 +130,7 @@ base::Status LLama2Model::init(base::DeviceType device_type) {
   }
   // 初始化内存
   init_mem();
-  // 如果设备是cpu，则计算sin和cos缓存
+  // 计算sin和cos缓存
   if (device_type_ == base::DeviceType::kDeviceCPU) {
     kernel::sin_cos_cache_calc_cpu(config_->head_size_, config_->seq_len_,
                                    get_buffer(ModelBufferType::kSinCache).ptr<float>(),
@@ -147,7 +147,7 @@ base::Status LLama2Model::init(base::DeviceType device_type) {
   return error::Success();
 }
 
-base::Status LLama2Model::forward(const tensor::Tensor& input, const tensor::Tensor& pos_tensor,
+base::Status LLama3Model::forward(const tensor::Tensor& input, const tensor::Tensor& pos_tensor,
                                   int& next) const {
   if (input.is_empty()) {
     return base::error::InvalidArgument("The input tensor is empty.");
@@ -166,12 +166,12 @@ base::Status LLama2Model::forward(const tensor::Tensor& input, const tensor::Ten
     // feed forward
     feed_forward(layer_idx, input);
   }
-  // 分类层
+  // 分类层：RMSNorm + Linear
   cls_logits(input);
   return base::error::Success();
 }
 
-void LLama2Model::create_nonparam_layers() {
+void LLama3Model::create_nonparam_layers() {
   CHECK(llama_layers_ != nullptr);
   // 创建旋转位置编码层
   llama_layers_->rope_layer_ = std::make_shared<op::RoPELayer>(
@@ -191,7 +191,7 @@ void LLama2Model::create_nonparam_layers() {
 }
 
 // 创建量化层   
-void LLama2Model::create_param_quant_layers() {
+void LLama3Model::create_param_quant_layers() {
   CHECK(is_quant_model_);
   CHECK(llama_layers_ != nullptr);
 
@@ -306,7 +306,7 @@ void LLama2Model::create_param_quant_layers() {
 // 5. 跳过ffn.w1 ffn.w2 ffn.w3
 // 6. 跳过final rms weight
 // 7. 跳过freqs_cos和freqs_sin weight
-void LLama2Model::create_param_layers() {
+void LLama3Model::create_param_layers() {
   CHECK(!is_quant_model_);
   CHECK(llama_layers_ != nullptr);
   // The embedding layer
@@ -449,7 +449,7 @@ void LLama2Model::create_param_layers() {
   llama_layers_->rmsnorm_layers_.push_back(rms_final_layer);
 }
 // 初始化内存
-void LLama2Model::init_mem() {
+void LLama3Model::init_mem() {
   // 创建设备分配器
   std::shared_ptr<base::DeviceAllocator> alloc;
   if (device_type_ == base::DeviceType::kDeviceCPU) {
@@ -541,7 +541,7 @@ void LLama2Model::init_mem() {
   CHECK(insert_buffer(ModelBufferType::kForwardOutput, forward_output));
 }
 
-base::Status LLama2Model::create_layers() {
+base::Status LLama3Model::create_layers() {
   using namespace base;
   // 创建层
   if (!llama_layers_) {
@@ -629,7 +629,7 @@ base::Status LLama2Model::create_layers() {
   return error::Success();
 }
 
-op::EmbeddingOutput LLama2Model::embedding(const std::vector<int>& tokens) const {
+op::EmbeddingOutput LLama3Model::embedding(const std::vector<int>& tokens) const {
   auto input_tokens = get_buffer(ModelBufferType::kInputTokens);
   auto input_embeddings = get_buffer(ModelBufferType::kInputEmbeddings);
   if (input_tokens.size() != tokens.size()) {
@@ -654,7 +654,7 @@ op::EmbeddingOutput LLama2Model::embedding(const std::vector<int>& tokens) const
   return output;
 }
 
-void LLama2Model::attention_rms(int32_t layer_idx, const tensor::Tensor& input) const {
+void LLama3Model::attention_rms(int32_t layer_idx, const tensor::Tensor& input) const {
   CHECK(llama_layers_ != nullptr);
   // attn rmsnorm
   tensor::Tensor rmsnorm_output = get_buffer(ModelBufferType::kOutputRMSNorm);
@@ -665,7 +665,7 @@ void LLama2Model::attention_rms(int32_t layer_idx, const tensor::Tensor& input) 
   STATUS_CHECK(rmsnorm_layer->forward(input, rmsnorm_output));
 }
 // 计算第pos个输入token的query、key、value，维度均为(1,dim)
-void LLama2Model::attention_qkv(int32_t layer_idx, const tensor::Tensor& pos_tensor) const {
+void LLama3Model::attention_qkv(int32_t layer_idx, const tensor::Tensor& pos_tensor) const {
   CHECK(llama_layers_ != nullptr);
   // kv cache
   tensor::Tensor query = this->get_buffer(ModelBufferType::kQuery);
@@ -696,7 +696,7 @@ void LLama2Model::attention_qkv(int32_t layer_idx, const tensor::Tensor& pos_ten
       get_buffer(ModelBufferType::kCosCache), tensor::Tensor{}));
 }
 // 预测下一个token
-base::Status LLama2Model::predict(const tensor::Tensor& input, const tensor::Tensor& pos_tensor,
+base::Status LLama3Model::predict(const tensor::Tensor& input, const tensor::Tensor& pos_tensor,
                                   bool is_prompt, int& next) const {
   // input: 输入张量，维度为(hidden_dim_)
   // pos_tensor: pos张量，维度为(1)
@@ -709,7 +709,7 @@ base::Status LLama2Model::predict(const tensor::Tensor& input, const tensor::Ten
   return base::error::Success();
 }
 // 注意力机制
-void LLama2Model::attention_mha(int32_t layer_idx, const tensor::Tensor& pos_tensor) const {
+void LLama3Model::attention_mha(int32_t layer_idx, const tensor::Tensor& pos_tensor) const {
   CHECK(llama_layers_ != nullptr);
   // mha
   tensor::Tensor key_cache = get_buffer(ModelBufferType::kKeyCache);
@@ -748,7 +748,7 @@ void LLama2Model::attention_mha(int32_t layer_idx, const tensor::Tensor& pos_ten
   STATUS_CHECK(wo_layer->forward(mha_output, attn_output));
 }
 
-void LLama2Model::feed_forward(int32_t layer_idx, const tensor::Tensor& input) const {
+void LLama3Model::feed_forward(int32_t layer_idx, const tensor::Tensor& input) const {
   CHECK(llama_layers_ != nullptr);
   // residual add
   CHECK_NE(llama_layers_->add_layer_, nullptr)
@@ -792,7 +792,7 @@ void LLama2Model::feed_forward(int32_t layer_idx, const tensor::Tensor& input) c
   STATUS_CHECK(llama_layers_->add_layer_->forward(input, w2_output, input));
 }
 
-void LLama2Model::cls_logits(const tensor::Tensor& input) const {
+void LLama3Model::cls_logits(const tensor::Tensor& input) const {
   CHECK(llama_layers_ != nullptr);
   const auto& norm = llama_layers_->rmsnorm_layers_.at(2 * config_->layer_num_);
   CHECK_NE(norm, nullptr);
@@ -803,7 +803,7 @@ void LLama2Model::cls_logits(const tensor::Tensor& input) const {
   STATUS_CHECK(llama_layers_->cls_layer_->forward(input, forward_output));
 }
 
-int32_t LLama2Model::post_processing(const tensor::Tensor& pos, bool is_prompt) const {
+int32_t LLama3Model::post_processing(const tensor::Tensor& pos, bool is_prompt) const {
   // 获取forward输出张量
   tensor::Tensor forward_output = get_buffer(ModelBufferType::kForwardOutput);
   const float* forward_logits = forward_output.ptr<float>();  // 获取forward输出张量的指针
