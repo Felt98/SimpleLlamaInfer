@@ -18,47 +18,6 @@ if (LLAMA3_SUPPORT)
     )
 endif ()
 set_target_properties(llama_infer PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
-# 移除重复的 find_package，因为主 CMakeLists.txt 已经处理了
-# if (LLAMA3_SUPPORT)
-#     message(STATUS "LINK LLAMA3 SUPPORT")
-#     # 不需要额外链接，因为 llama 库已经包含了这些依赖
-# endif ()
-# set_target_properties(llama_infer PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
-# ========================
-
-if (QWEN2_SUPPORT)
-    message(STATUS "LINK QWEN2 SUPPORT")
-    add_executable(qwen_infer main_qwen.cpp)
-    target_link_directories(qwen_infer PUBLIC ${PROJECT_SOURCE_DIR}/lib)
-    find_package(absl REQUIRED)
-    find_package(re2 REQUIRED)
-    find_package(nlohmann_json REQUIRED)
-    target_link_libraries(qwen_infer PRIVATE llama glog::glog)
-    target_link_libraries(qwen_infer
-        PRIVATE
-        absl::base
-        absl::strings
-        re2::re2
-        nlohmann_json::nlohmann_json
-    )
-    set_target_properties(qwen_infer PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
-elseif (QWEN3_SUPPORT)
-    message(STATUS "LINK QWEN3 SUPPORT")
-    add_executable(qwen3_infer main_qwen3.cpp)
-    target_link_directories(qwen3_infer PUBLIC ${PROJECT_SOURCE_DIR}/lib)
-    find_package(absl REQUIRED)
-    find_package(re2 REQUIRED)
-    find_package(nlohmann_json REQUIRED)
-    target_link_libraries(qwen3_infer PRIVATE llama glog::glog)
-    target_link_libraries(qwen3_infer
-        PRIVATE
-        absl::base
-        absl::strings
-        re2::re2
-        nlohmann_json::nlohmann_json
-    )
-    set_target_properties(qwen3_infer PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
-endif ()
 
 # Demo executables
 add_executable(demo main.cpp)

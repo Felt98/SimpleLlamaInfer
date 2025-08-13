@@ -2,7 +2,8 @@
 /tmp
 /llama3
 /llama2
-
+/exe
+/__pycache__
 .*
 !.git/
 !.gitignore
