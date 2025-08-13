@@ -52,4 +52,3 @@ set_property(TARGET test_llm PROPERTY ENVIRONMENT "LD_LIBRARY_PATH=/mnt/second/q
 
 # ✅ 注册测试
 include(GoogleTest)
-gtest_discover_tests(test_llm)  # ✅ 这一步让 ctest 能识别 TEST() 宏

@@ -1,8 +1,14 @@
 #include <glog/logging.h>
 #include <gtest/gtest.h>
+#include <sys/stat.h>
+#include <sys/types.h>
 
 int main(int argc, char* argv[]) {
   testing::InitGoogleTest(&argc, argv);
+  
+  // 确保日志目录存在
+  mkdir("./log", 0755);
+  
   google::InitGoogleLogging("Kuiper");
   FLAGS_log_dir = "./log/";
   FLAGS_alsologtostderr = true;

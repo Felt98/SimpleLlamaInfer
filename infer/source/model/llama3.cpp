@@ -203,9 +203,11 @@ void LLama3Model::create_param_quant_layers() {
   for (int32_t i = 0; i < config_->layer_num_; ++i) {
     auto wq = std::make_shared<op::MatmulLayer>(device_type_, dim, dim, true);
     wq->set_group_size(group_size_);
+    LOG(INFO) << "Creating wq layer " << i << ", dim: " << dim << ", pos: " << pos;
     wq->set_weight(0, {dim, dim}, this->raw_model_data_->weight(pos), cpu_device_type);
     llama_layers_->wq_layers_.push_back(wq);
     pos = pos + dim * dim + wq->get_scale_num() * sizeof(float);
+    LOG(INFO) << "wq layer " << i << " created, new pos: " << pos;
   }
 
   // 创建key权重矩阵

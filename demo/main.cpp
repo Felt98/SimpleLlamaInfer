@@ -73,17 +73,27 @@ int32_t generate(const model::LLama3Model& model, const std::string& sentence, i
 
 
 int main(int argc, char* argv[]) {
-  if (argc != 3) {
-    LOG(INFO) << "Usage: ./demo checkpoint path tokenizer path";
+  if (argc != 3 && argc != 4) {
+    LOG(INFO) << "Usage: ./demo checkpoint_path tokenizer_path [--quant]";
+    LOG(INFO) << "  --quant: 使用量化模型 (可选，默认不使用量化)";
     return -1;
   }
   const char* checkpoint_path = argv[1];  // e.g. out/model.bin
   const char* tokenizer_path = argv[2];
 
-  // model::LLama3Model model(base::TokenizerType::kEncodeBpe, tokenizer_path,
-  //   checkpoint_path, false);  // true为使用量化模型，false为使用fp16模型,llama3.1使用bpe分词
-  model::LLama3Model model(base::TokenizerType::kEncodeSpe, tokenizer_path,
-    checkpoint_path, false);  // true为使用量化模型，false为使用fp16模型，llama2使用spe分词
+  // 检查是否使用量化模型
+  bool use_quantization = false;
+  if (argc == 4 && strcmp(argv[3], "--quant") == 0) {
+    use_quantization = true;
+    printf("使用量化模型模式\n");
+  } else {
+    printf("使用标准模型模式\n");
+  }
+
+  model::LLama3Model model(base::TokenizerType::kEncodeBpe, tokenizer_path,
+    checkpoint_path, use_quantization);  // true为使用量化模型，false为使用fp16模型,llama3.1使用bpe分词
+  // model::LLama3Model model(base::TokenizerType::kEncodeSpe, tokenizer_path,
+  //   checkpoint_path, false);  // true为使用量化模型，false为使用fp16模型，llama2使用spe分词
 
   auto init_status = model.init(base::DeviceType::kDeviceCUDA);
   if (!init_status) {
@@ -93,6 +103,7 @@ int main(int argc, char* argv[]) {
 
   auto start = std::chrono::steady_clock::now();
   printf("Generating...\n");
+  printf("模型类型: %s\n", use_quantization ? "量化模型" : "标准模型");
   fflush(stdout);
   int steps = generate(model, sentence, 128, true);
   auto end = std::chrono::steady_clock::now();

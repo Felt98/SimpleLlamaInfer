@@ -68,9 +68,9 @@ __global__ void matmul_kernel_cu_fp32int8(const float* input, const int8_t* weig
   for (int p = start_row; p < end_row; ++p) {
     sdata[tid] = 0;
     for (int i = tid; i < M; i += THREAD_PER_BLOCK) {
-      const int weight_idx = p * M + i;
-      const int group_idx = weight_idx / group_size;
-      sdata[tid] += input[i] * scales[group_idx] * static_cast<float>(weight[weight_idx]);
+      const int weight_idx = p * M + i;  // 权重索引
+      const int group_idx = weight_idx / group_size;    // 量化组索引
+      sdata[tid] += input[i] * scales[group_idx] * static_cast<float>(weight[weight_idx]);  // 计算量化后的权重
     }
     __syncthreads();
 
@@ -95,7 +95,7 @@ void matmul_kernel_cu(const tensor::Tensor& input, const tensor::Tensor& weight,
   CHECK(weight.device_type() == base::DeviceType::kDeviceCUDA);
   const int32_t K = weight.get_dim(0);  // row
   const int32_t M = weight.get_dim(1);  // col
-  int packet_size = 4;
+  // int packet_size = 4;  // 未使用，注释掉
   // CHECK_EQ(M % packet_size, 0);
 
   CHECK_EQ(M, input.get_dim(0));
@@ -119,8 +119,8 @@ void matmul_kernel_cu_qint8(const tensor::Tensor& input, const tensor::Tensor& w
   CHECK(weight.device_type() == base::DeviceType::kDeviceCUDA);
   const int32_t K = weight.get_dim(0);  // row
   const int32_t M = weight.get_dim(1);  // col
-  int packet_size = 4;
-  CHECK_EQ(M % packet_size, 0);
+  // int packet_size = 4;  // 未使用，注释掉
+  // CHECK_EQ(M % packet_size, 0);  // 注释掉相关检查
   CHECK_EQ(M, input.get_dim(0));
   if (config->stream) {
     matmul_kernel_cu_fp32int8<128, 1><<<K, 128, 0, config->stream>>>(

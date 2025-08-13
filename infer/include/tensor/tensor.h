@@ -2,6 +2,7 @@
 #define INCLUDE_TENSOR_TENSOR_H_
 #include <driver_types.h>
 #include <glog/logging.h>
+#define ARMA_ALLOW_FAKE_GCC
 #include <armadillo>
 #include <memory>
 #include <vector>
