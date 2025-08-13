@@ -44,11 +44,10 @@ set_target_properties(test_llm PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
 # 设置 RPATH，让可执行文件自动找到 conda 环境的库
 set_target_properties(test_llm PROPERTIES
     BUILD_WITH_INSTALL_RPATH TRUE
-    INSTALL_RPATH "/mnt/second/qinhaoping/anaconda3/envs/kuiper/lib:${PROJECT_SOURCE_DIR}/lib"
+    INSTALL_RPATH "$ENV{CONDA_PREFIX}/lib:${PROJECT_SOURCE_DIR}/lib"
 )
 
 # 设置测试环境变量，确保能找到 conda 环境的库
-set_property(TARGET test_llm PROPERTY ENVIRONMENT "LD_LIBRARY_PATH=/mnt/second/qinhaoping/anaconda3/envs/kuiper/lib:$ENV{LD_LIBRARY_PATH}")
-
+set_property(TARGET test_llm PROPERTY ENVIRONMENT "LD_LIBRARY_PATH=$ENV{CONDA_PREFIX}/lib:$ENV{LD_LIBRARY_PATH}")
 # ✅ 注册测试
 include(GoogleTest)

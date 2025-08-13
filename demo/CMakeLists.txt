@@ -8,7 +8,6 @@ if (LLAMA3_SUPPORT)
     find_package(absl REQUIRED)
     find_package(re2 REQUIRED)
     find_package(nlohmann_json REQUIRED)
-    # target_link_libraries(llama_infer absl::base re2::re2 nlohmann_json::nlohmann_json)
     target_link_libraries(llama_infer
         PRIVATE
         absl::base

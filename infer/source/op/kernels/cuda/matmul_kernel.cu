@@ -100,10 +100,10 @@ void matmul_kernel_cu(const tensor::Tensor& input, const tensor::Tensor& weight,
 
   CHECK_EQ(M, input.get_dim(0));
   if (config && config->stream) {
-    matmul_kernel_cu_fp32<128, 1><<<K, 128, 0, config->stream>>>(
+    matmul_kernel_cu_fp32<256, 1><<<K, 128, 0, config->stream>>>(
         input.ptr<float>(), weight.ptr<float>(), const_cast<float*>(output.ptr<float>()), M, K);
   } else {
-    matmul_kernel_cu_fp32<128, 1><<<K, 128>>>(input.ptr<float>(), weight.ptr<float>(),
+    matmul_kernel_cu_fp32<256, 1><<<K, 128>>>(input.ptr<float>(), weight.ptr<float>(),
                                               const_cast<float*>(output.ptr<float>()), M, K);
   }
 }
@@ -123,11 +123,11 @@ void matmul_kernel_cu_qint8(const tensor::Tensor& input, const tensor::Tensor& w
   // CHECK_EQ(M % packet_size, 0);  // 注释掉相关检查
   CHECK_EQ(M, input.get_dim(0));
   if (config->stream) {
-    matmul_kernel_cu_fp32int8<128, 1><<<K, 128, 0, config->stream>>>(
+    matmul_kernel_cu_fp32int8<256, 1><<<K, 128, 0, config->stream>>>(
         input.ptr<float>(), weight.ptr<int8_t>(), scale.ptr<float>(), group_size,
         const_cast<float*>(output.ptr<float>()), M, K);
   } else {
-    matmul_kernel_cu_fp32int8<128, 1><<<K, 128>>>(input.ptr<float>(), weight.ptr<int8_t>(),
+    matmul_kernel_cu_fp32int8<256, 1><<<K, 128>>>(input.ptr<float>(), weight.ptr<int8_t>(),
                                                   scale.ptr<float>(), group_size,
                                                   const_cast<float*>(output.ptr<float>()), M, K);
   }

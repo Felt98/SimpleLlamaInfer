@@ -9,7 +9,7 @@ int main(int argc, char* argv[]) {
   // 确保日志目录存在
   mkdir("./log", 0755);
   
-  google::InitGoogleLogging("Kuiper");
+  google::InitGoogleLogging("SimpleLlamaInfer");
   FLAGS_log_dir = "./log/";
   FLAGS_alsologtostderr = true;
 

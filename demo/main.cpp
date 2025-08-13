@@ -75,7 +75,7 @@ int32_t generate(const model::LLama3Model& model, const std::string& sentence, i
 int main(int argc, char* argv[]) {
   if (argc != 3 && argc != 4) {
     LOG(INFO) << "Usage: ./demo checkpoint_path tokenizer_path [--quant]";
-    LOG(INFO) << "  --quant: 使用量化模型 (可选，默认不使用量化)";
+    LOG(INFO) << "  --quant: use quantization model (optional, default not use quantization)";
     return -1;
   }
   const char* checkpoint_path = argv[1];  // e.g. out/model.bin
@@ -85,9 +85,9 @@ int main(int argc, char* argv[]) {
   bool use_quantization = false;
   if (argc == 4 && strcmp(argv[3], "--quant") == 0) {
     use_quantization = true;
-    printf("使用量化模型模式\n");
+    printf("use quantization model\n");
   } else {
-    printf("使用标准模型模式\n");
+    printf("use fp16 model\n");
   }
 
   model::LLama3Model model(base::TokenizerType::kEncodeBpe, tokenizer_path,
@@ -103,7 +103,7 @@ int main(int argc, char* argv[]) {
 
   auto start = std::chrono::steady_clock::now();
   printf("Generating...\n");
-  printf("模型类型: %s\n", use_quantization ? "量化模型" : "标准模型");
+  printf("model type: %s\n", use_quantization ? "quant" : "fp16");
   fflush(stdout);
   int steps = generate(model, sentence, 128, true);
   auto end = std::chrono::steady_clock::now();
