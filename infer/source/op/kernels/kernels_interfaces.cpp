@@ -51,6 +51,18 @@ MatmulKernel get_matmul_kernel(base::DeviceType device_type) {
   }
 }
 
+MatmulKernel get_matmul_kernel_cublas(base::DeviceType device_type) {
+  if (device_type == base::DeviceType::kDeviceCPU) {
+    return matmul_kernel_cpu;
+  }
+  else if (device_type == base::DeviceType::kDeviceCUDA) {
+    return matmul_kernel_cublas;
+  } else {
+    LOG(FATAL) << "Unknown device type for get an matmul kernel.";
+    return nullptr;
+  }
+}
+
 MatmulKernelQuant get_matmul_kernel_quant8(base::DeviceType device_type) {
   if (device_type == base::DeviceType::kDeviceCUDA) {
     return matmul_kernel_cu_qint8;

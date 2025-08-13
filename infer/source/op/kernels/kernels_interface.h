@@ -54,6 +54,7 @@ AddKernel get_add_kernel(base::DeviceType device_type);
 EmbeddingKernel get_emb_kernel(base::DeviceType device_type);
 
 MatmulKernel get_matmul_kernel(base::DeviceType device_type);
+MatmulKernel get_matmul_kernel_cublas(base::DeviceType device_type);
 
 MatmulKernelQuant get_matmul_kernel_quant8(base::DeviceType device_type);
 

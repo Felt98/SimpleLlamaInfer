@@ -1,4 +1,5 @@
 #include "emb_kernel.cuh"
+#include "base/cuda_macros.h"
 namespace kernel {
 __global__ void emb_kernel_cu_fp32(int32_t vocab_size, int32_t token_num, int32_t weight_dim,
                                    const int32_t* input_ptr, const float* weight_ptr,
@@ -15,9 +16,20 @@ __global__ void emb_kernel_cu_fp32(int32_t vocab_size, int32_t token_num, int32_
   float* output_ptr_start = output_ptr + token_idx * weight_dim;
   const float* weight_ptr_start = weight_ptr + token * weight_dim;
 
-  for (int32_t i = threadIdx.x; i < weight_dim; i += blockDim.x) {
-    output_ptr_start[i] = weight_ptr_start[i];
-  }
+  // for (int32_t i = threadIdx.x; i < weight_dim; i += blockDim.x) {
+  //   output_ptr_start[i] = weight_ptr_start[i];
+  // }
+  for (int32_t i = threadIdx.x * 4; i < weight_dim; i += blockDim.x * 4) {
+    if (i + 3 < weight_dim) {
+        float4 vec = FLOAT4_LOAD(weight_ptr_start, i/4);
+        FLOAT4_STORE(output_ptr_start, i/4, vec);
+    } else {
+        // 处理边界
+        for (int j = 0; j < 4 && i + j < weight_dim; ++j) {
+            output_ptr_start[i + j] = weight_ptr_start[i + j];
+        }
+    }
+}
 }
 
 void emb_kernel_cu(const tensor::Tensor& input, const tensor::Tensor& weight,
@@ -33,7 +45,7 @@ void emb_kernel_cu(const tensor::Tensor& input, const tensor::Tensor& weight,
   CHECK(output.device_type() == base::DeviceType::kDeviceCUDA);
 
   constexpr int32_t max_seq_len = 512;
-  constexpr int32_t thread_num = 128;
+  constexpr int32_t thread_num = 256;
   int32_t* in_ptr = input_cu.ptr<int32_t>();
   float* wei_ptr = const_cast<float*>(weight.ptr<float>());
   float* out_ptr = const_cast<float*>(output.ptr<float>());

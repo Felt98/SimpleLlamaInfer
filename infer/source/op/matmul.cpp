@@ -67,7 +67,9 @@ base::Status MatmulLayer::forward() {
                                                    group_size_, scales_,
                                                    cuda_config_ ? cuda_config_.get() : nullptr);
   } else {
-    kernel::get_matmul_kernel(device_type_)(get_input(0), get_weight(0), get_output(0), 1.f,
+    // kernel::get_matmul_kernel(device_type_)(get_input(0), get_weight(0), get_output(0), 1.f,
+    //                                         cuda_config_ ? cuda_config_.get() : nullptr);
+    kernel::get_matmul_kernel_cublas(device_type_)(get_input(0), get_weight(0), get_output(0), 1.f,
                                             cuda_config_ ? cuda_config_.get() : nullptr);
   }
 

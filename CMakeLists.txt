@@ -35,6 +35,7 @@ set(glog_DIR "$ENV{CONDA_PREFIX}/lib/cmake/glog")
 find_package(glog REQUIRED)
 
 find_package(Armadillo REQUIRED)
+find_package(CUDAToolkit REQUIRED)
 if (LLAMA3_SUPPORT)
     find_package(absl REQUIRED)
     find_package(re2 REQUIRED)
@@ -60,7 +61,9 @@ target_link_libraries(llama
   gtest
   gtest_main
   pthread
-  cudart
+  CUDA::cudart
+  CUDA::cublas
+  CUDA::cublasLt
   armadillo
   absl::base
   absl::strings    
