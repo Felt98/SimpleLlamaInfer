@@ -4,7 +4,7 @@
 [![C++](https://img.shields.io/badge/C++-17/20-blue.svg)](https://isocpp.org/)
 [![CUDA](https://img.shields.io/badge/CUDA-12.2-green.svg)](https://developer.nvidia.com/cuda-toolkit)
 [![CMake](https://img.shields.io/badge/CMake-3.19+-orange.svg)](https://cmake.org/)
-[![Stars](https://img.shields.io/github/stars/your-username/SimpleLlamaInfer?style=social)](https://github.com/your-username/SimpleLlamaInfer)
+[![Stars](https://img.shields.io/github/stars/your-username/SimpleLlamaInfer?style=social)](https://github.com/Felt98/SimpleLlamaInfer#)
 
 > A simple and lightweight inference engine for Large Language Models (LLMs) with support for Llama3.2 models.
 
@@ -58,7 +58,7 @@
 
 ```bash
 # Clone the repository
-git clone https://github.com/your-username/SimpleLlamaInfer.git
+git clone https://github.com/Felt98/SimpleLlamaInfer.git
 cd SimpleLlamaInfer
 
 # Create build directory
