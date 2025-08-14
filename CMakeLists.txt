@@ -80,4 +80,5 @@ target_include_directories(llama PUBLIC ${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES
 set_target_properties(llama PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
 enable_testing()
 add_subdirectory(test)
-add_subdirectory(demo)
+add_subdirectory(examples)
+add_subdirectory(benchmark)

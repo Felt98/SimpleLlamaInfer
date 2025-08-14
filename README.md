@@ -136,10 +136,10 @@ Run inference with different models:
 
 ```bash
 # Llama3.2 inference
-./build/demo/llama_infer llama3.2_1b.bin meta-llama/Llama-3.2-1B/tokenizer.json
+./build/examples/llama_infer llama3.2_1b.bin meta-llama/Llama-3.2-1B/tokenizer.json
 
 # Quantized Llama3.2 inference
-./build/demo/llama_infer llama3.2_1b_int8.bin meta-llama/Llama-3.2-1B/tokenizer.json --quant
+./build/examples/llama_infer llama3.2_1b_int8.bin meta-llama/Llama-3.2-1B/tokenizer.json --quant
 
 # Compare with Hugging Face results
 python3 hf_infer/llama3_infer.py
@@ -163,19 +163,19 @@ make test
 Run performance benchmarks:
 ```bash
 # Performance test for FP32 model
-./build/demo/performance_test llama3.2_1b.bin meta-llama/Llama-3.2-1B/tokenizer.json
+./build/benchmarks/performance_test llama3.2_1b.bin meta-llama/Llama-3.2-1B/tokenizer.json
 
 # Performance test for INT8 quantized model
-./build/demo/performance_test llama3.2_1b_int8.bin meta-llama/Llama-3.2-1B/tokenizer.json --quant
+./build/benchmarks/performance_test llama3.2_1b_int8.bin meta-llama/Llama-3.2-1B/tokenizer.json --quant
 
 # Latency benchmark for FP32 model
-./build/demo/latency_benchmark llama3.2_1b.bin meta-llama/Llama-3.2-1B/tokenizer.json
+./build/benchmarks/latency_benchmark llama3.2_1b.bin meta-llama/Llama-3.2-1B/tokenizer.json
 
 # Latency benchmark for INT8 quantized model
-./build/demo/latency_benchmark llama3.2_1b_int8.bin meta-llama/Llama-3.2-1B/tokenizer.json --quant
+./build/benchmarks/latency_benchmark llama3.2_1b_int8.bin meta-llama/Llama-3.2-1B/tokenizer.json --quant
 
 # Compare accuracy between FP32 and INT8 models
-./build/demo/accuracy_benchmark llama3.2_1b.bin llama3.2_1b_int8.bin meta-llama/Llama-3.2-1B/tokenizer.json
+./build/benchmarks/accuracy_benchmark llama3.2_1b.bin llama3.2_1b_int8.bin meta-llama/Llama-3.2-1B/tokenizer.json
 ```
 
 ## 🤝 Contributing
